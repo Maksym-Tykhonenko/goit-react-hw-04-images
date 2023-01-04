@@ -9,9 +9,9 @@ import { Wrapp } from './App.styled';
 export function App() {
   const [query, setQuery] = useState('');
 
-const onSubmit =(query) => {
-setQuery(query);
-}
+  const onSubmit =(query) => {
+  setQuery(query);
+  }
 
     return (
       <Wrapp>
@@ -22,5 +22,5 @@ setQuery(query);
         />
       </Wrapp>
     );
-  };
+};
 

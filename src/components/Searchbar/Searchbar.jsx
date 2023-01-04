@@ -1,51 +1,41 @@
-import { Component } from "react";
+import {useState} from "react";
 import { toast } from 'react-hot-toast';
 
 import {Header, Form, Input, Btn, BtnLable} from './Searchbar.styled';
 
-export class Searchbar extends Component {
-  state = {
-    query: '',
-  };
+export function Searchbar ({onSubmit}){
 
-  handleInputSearch = (e) => {
-    this.setState({
-      query: e.currentTarget.value
-    })
-  };
+  const [query, setQuery]= useState('')
 
-  hendleSubmit = (e) => {
-    const { onSubmit } = this.props;
-    const { query } = this.state;
+  const handleInputSearch =(e)=>{
+    setQuery(e.currentTarget.value)
+  }
+
+  const hendleSubmit = (e) => {
     e.preventDefault();
-
-    if (this.state.query.trim() === '') {
+    if (query.trim() === ''){
       toast.error('ВВЕДІТЬ ПОШУКОВИЙ ЗАПИТ!!!!');
-      return
+    }
+    else{
+      onSubmit(query)
     };
-    
-    onSubmit(query);
-    this.reset();
-
+  
+    setQuery('');
+  
   };
 
-  reset = () => {
-    this.setState({ query: '' })
-  };
-
-  render(){
     return (
       <Header>
         <Form
-          onSubmit={this.hendleSubmit}
+          onSubmit={hendleSubmit}
         >
           <Btn type="submit">
             <BtnLable>Search</BtnLable>
           </Btn>
           <Input
-            value={this.state.query}
+            value={query}
             name="query"
-            onChange={this.handleInputSearch}
+            onChange={handleInputSearch}
             type="text"
             autoComplete="off"
             autoFocus
@@ -54,5 +44,4 @@ export class Searchbar extends Component {
         </Form>
       </Header>
     );
-  };
 };

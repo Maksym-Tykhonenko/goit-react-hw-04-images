@@ -1,61 +1,58 @@
-import { Component } from "react";
+import {useState, useEffect} from "react";
 import { getImgs } from "servises/api";
 
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 import { Button } from '../../Button/Button';
 import { Loader } from "components/Loader/Loader";
+
 import {GallaryList } from './ImageGallery.styled';
 
-export class ImageGallery extends Component {
-  state = {
-    data: [],
-    loading: false,
-    page: 1,
-    error: null,
+export function ImageGallery({query}) {
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+    const onLoadMoreClick = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    const { query } = this.props;
-    const {page } = this.state;
+  useEffect(() => {
+    setPage(1);
+    setData([]);
+  }, [query]);
 
-    if (prevProps.query !== query) {
+  useEffect(() => {
+    async function fetchImg() {
+      try {
+        if (query === '') {
+          return;
+        }
+        setLoading(true);
+        const imgList = await getImgs(query, page);
+        setData(prevData => [...prevData, ...imgList.hits]);
+        setLoading(false);
 
-      this.setState({ loading: true });
-
-      getImgs(query, page)
-        .then(data => this.setState({
-          data: data.hits
-        })).catch(error => this.setState({ error }))
-        .finally(() => this.setState({ loading: false }));
+        //getImgs(query, page)
+        //.then(data => this.setState({
+        //  data: data.hits
+        //})).catch(error => this.setState({ error }))
+        //.finally(() => this.setState({ loading: false }));
+        
+      }
+      catch (error) {
+        setError(true)
+        setLoading(false);
+      };
     };
+    fetchImg();
+  }, [page, query]);
 
-    if (prevState.page !== page) {
-
-      this.setState({ loading: true });
-
-      getImgs(query, page)
-        .then(data => this.setState({
-          data: [...prevState.data, ...data.hits]
-        }))
-        .finally(() => this.setState({ loading: false }));
-    };
-  };
-
-
-  onLoadMoreClick = (e) => {
-    e.preventDefault();
-
-    this.setState((prevState) => ({
-        page: prevState.page +1,
-    }));
-  };
-
-  render() {
-    const { data, loading } = this.state;
     return (
       <>
         {loading && <Loader />}
         <GallaryList>
+          {error && <div>Thometing wrong!</div>}
           {data.map((item) => {
             return (
               <ImageGalleryItem
@@ -67,11 +64,7 @@ export class ImageGallery extends Component {
             )
           })}
         </GallaryList>
-        {data.length > 0 && <Button onClick={this.onLoadMoreClick} />}
-        
+        {data.length > 0 && <Button onClick={onLoadMoreClick} />}
       </>
     );
   };
-};
-
-
